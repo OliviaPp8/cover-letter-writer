@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cover Letter Writer · AI 求职技能</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23C8F04E'/%3E%3Cpath d='M7 6h10v2H7zM7 11h10v2H7zM7 16h6v2H7z' fill='%230E1116'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
+<style>
+:root{
+  --bg:#0E1116; --surf:#161B22; --line:#262C36;
+  --txt:#F2F4F7; --sub:#9AA4B2; --acc:#C8F04E; --acc-dim:#9FC93A;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:#06080B; color:var(--txt);
+  font-family:'Noto Sans SC',system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+/* 手机框式居中列：桌面端像一台手机，移动端满屏 */
+.deck{
+  position:relative; max-width:480px; margin:0 auto; height:100dvh;
+  overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory;
+  background:var(--bg); box-shadow:0 0 0 1px var(--line), 0 0 80px rgba(0,0,0,.6);
+  scrollbar-width:none;
+}
+.deck::-webkit-scrollbar{display:none}
+.slide{
+  min-height:100dvh; scroll-snap-align:start; scroll-snap-stop:always;
+  padding:64px 28px 72px; position:relative; display:flex; flex-direction:column;
+}
+/* 顶部进度条 */
+.progress{position:fixed; top:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px; height:2px; background:transparent; z-index:50}
+.progress > i{display:block; height:100%; width:0; background:var(--acc); transition:width .15s linear}
+/* 右侧页码点 */
+.dots{position:fixed; top:50%; transform:translateY(-50%); z-index:50;
+  right:max(12px, calc((100% - 480px)/2 + 12px)); display:flex; flex-direction:column; gap:6px}
+.dots button{width:30px;height:30px;border:0;padding:0;cursor:pointer;
+  background:transparent; position:relative; display:block}
+.dots button::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;
+  background:#3A424E; transform:translate(-50%,-50%); transition:.25s}
+.dots button.on::after{background:var(--acc); transform:translate(-50%,-50%) scale(1.5)}
+/* 滚动揭示 */
+.fade{opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease}
+.fade.in{opacity:1; transform:none}
+/* 通用 */
+.kicker{font-size:12px; letter-spacing:.22em; color:var(--acc); font-weight:700; margin-bottom:16px}
+h1.title{font-size:34px; line-height:1.18; font-weight:900; letter-spacing:-.01em}
+h2.title{font-size:27px; line-height:1.22; font-weight:900; letter-spacing:-.01em}
+.lead{color:var(--sub); font-size:15px; margin-top:14px}
+.accent{color:var(--acc)}
+.chip{display:inline-block; padding:6px 13px; border:1px solid var(--line); border-radius:999px;
+  font-size:13px; color:var(--txt); background:rgba(255,255,255,.03)}
+.grow{margin-top:auto}
+
+/* 1 封面 */
+.s-cover{padding:0; justify-content:flex-end}
+.s-cover .bg{position:absolute; inset:0}
+.s-cover .bg img{width:100%;height:100%;object-fit:cover; object-position:center top; opacity:.9}
+.s-cover .bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(14,17,22,.25) 0%, rgba(14,17,22,.55) 45%, #0E1116 92%)}
+.s-cover .inner{position:relative; padding:34px 28px 60px}
+.s-cover .tag{font-size:12px; letter-spacing:.2em; color:var(--acc); font-weight:700}
+.s-cover h1{font-size:40px; font-weight:900; line-height:1.08; margin:14px 0 12px}
+.s-cover p{color:#C7CDD6; font-size:16px}
+.stats{display:flex; gap:10px; margin-top:22px}
+.stats .stat{flex:1; background:rgba(14,17,22,.72); border:1px solid var(--line); border-radius:14px; padding:13px 14px; backdrop-filter:blur(6px)}
+.stats b{display:block; font-size:22px; color:var(--acc); font-weight:900}
+.stats span{font-size:12px; color:var(--sub)}
+.hint{position:absolute; bottom:22px; left:0; right:0; text-align:center; font-size:12px; color:var(--sub)}
+
+/* 列表项 */
+.plist{margin-top:26px; display:flex; flex-direction:column; gap:14px}
+.pitem{display:flex; gap:13px; align-items:flex-start; background:var(--surf);
+  border:1px solid var(--line); border-radius:14px; padding:15px 15px}
+.pitem .ic{flex:0 0 22px; width:22px; height:22px; color:var(--acc); margin-top:1px}
+.pitem .tx b{display:block; font-size:15px; font-weight:700}
+.pitem .tx span{font-size:13px; color:var(--sub)}
+.pitem.bad .ic{color:#FF7A6B}
+/* 输入输出 */
+.io{margin-top:24px; display:flex; flex-direction:column; gap:12px}
+.io .box{border:1px solid var(--line); border-radius:16px; padding:16px; background:var(--surf)}
+.io .lab{font-size:11px; letter-spacing:.16em; color:var(--sub); margin-bottom:9px; font-weight:700}
+.io .tags{display:flex; flex-wrap:wrap; gap:8px}
+.io .arrow{text-align:center; color:var(--acc); font-size:20px; line-height:1}
+.io .out b{font-size:17px}
+.bigclaim{margin-top:22px; border:1px solid var(--acc); border-radius:18px; padding:18px;
+  background:linear-gradient(135deg, rgba(200,240,78,.12), rgba(200,240,78,.02))}
+.bigclaim .x{font-size:30px; font-weight:900; color:var(--acc)}
+.bigclaim p{color:#D8DDE4; font-size:13px; margin-top:6px}
+
+/* 流程 */
+.flow{margin-top:26px; position:relative; padding-left:6px}
+.fentry{border:1px dashed var(--acc); border-radius:12px; padding:11px 14px; font-size:14px;
+  color:var(--acc); margin-bottom:6px; text-align:center}
+.fstep{position:relative; padding:11px 14px 11px 40px; font-size:14px}
+.fstep .dot{position:absolute; left:11px; top:15px; width:12px; height:12px; border-radius:50%;
+  background:var(--bg); border:2px solid var(--acc); z-index:2}
+.fstep::before{content:""; position:absolute; left:16px; top:28px; bottom:-6px; width:2px; background:var(--line)}
+.fstep:last-child::before{display:none}
+.fstep b{font-weight:700}
+.fstep .n{color:var(--acc); font-weight:900; margin-right:6px}
+.fstep small{display:block; color:var(--sub); font-size:12.5px; margin-top:2px}
+
+/* 亮点卡 */
+.cards{margin-top:24px; display:grid; grid-template-columns:1fr; gap:12px}
+.card{background:var(--surf); border:1px solid var(--line); border-radius:16px; padding:16px}
+.card .h{display:flex; align-items:center; gap:10px; margin-bottom:6px}
+.card .h svg{width:20px;height:20px;color:var(--acc);flex:0 0 20px}
+.card .h b{font-size:15px}
+.card p{font-size:13px; color:var(--sub)}
+
+/* 标准清单 */
+.slist{margin-top:24px; display:flex; flex-direction:column; gap:13px}
+.srow{display:flex; gap:12px; align-items:flex-start; font-size:14.5px}
+.srow .chk{flex:0 0 20px; width:20px;height:20px;color:var(--acc);margin-top:1px}
+.srow small{display:block;color:var(--sub);font-size:12.5px;margin-top:2px}
+
+/* 更新日志 */
+.log{margin-top:24px; display:flex; flex-direction:column; gap:0}
+.lrow{display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); font-size:14px}
+.lrow:last-child{border-bottom:0}
+.lrow .tag{flex:0 0:auto; align-self:flex-start; font-size:10.5px; font-weight:700; letter-spacing:.05em;
+  padding:3px 8px; border-radius:6px; background:rgba(200,240,78,.14); color:var(--acc); margin-top:2px}
+.lrow.fix .tag{background:rgba(255,170,90,.14); color:#FFB35C}
+.lrow small{display:block;color:var(--sub);font-size:12.5px;margin-top:3px}
+.footnote{margin-top:18px; font-size:12px; color:var(--sub)}
+
+/* 结尾 */
+.s-end{justify-content:center; text-align:center; align-items:center}
+.s-end h2{font-size:30px; line-height:1.25}
+.s-end p{color:var(--sub); font-size:15px; margin-top:16px}
+.langs{display:flex; gap:10px; justify-content:center; margin-top:26px}
+.brand{margin-top:40px; font-size:12px; letter-spacing:.18em; color:var(--sub)}
+.brand b{color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="progress"><i id="bar"></i></div>
+<div class="dots" id="dots"></div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 封面 -->
+  <section class="slide s-cover">
+    <div class="bg"><img src="assets/hero.jpg" alt=""></div>
+    <div class="inner">
+      <div class="tag fade">AI 求职技能 · 产品演示</div>
+      <h1 class="fade">Cover<br>Letter<br><span class="accent">Writer</span></h1>
+      <p class="fade">让每一封求职信，都为这个岗位<br>量身定制。</p>
+      <div class="stats fade">
+        <div class="stat"><b>×10</b><span>写作效率</span></div>
+        <div class="stat"><b>×10</b><span>打招呼回复率</span></div>
+      </div>
+    </div>
+    <div class="hint">下滑查看 ↓</div>
+  </section>
+
+  <!-- 2 痛点 -->
+  <section class="slide">
+    <div class="kicker fade">THE PROBLEM</div>
+    <h2 class="title fade">海投一百封，<br>回复只有零。</h2>
+    <div class="plist">
+      <div class="pitem bad fade">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+        <div class="tx"><b>招聘软件一键打招呼</b><span>话术千人一面，HR 每天看一百遍</span></div>
+      </div>
+      <div class="pitem bad fade">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 10h6M9 14h6"/></svg>
+        <div class="tx"><b>求职信是填空模板</b><span>换个公司名就投，一眼被识破</span></div>
+      </div>
+      <div class="pitem bad fade">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+        <div class="tx"><b>对公司近况一无所知</b><span>没提任何近期动作，像盲投</span></div>
+      </div>
+      <div class="pitem bad fade">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+        <div class="tx"><b>中英切换靠硬翻</b><span>语法腔调出错，越想正式越尴尬</span></div>
+      </div>
+    </div>
+    <p class="lead grow fade">结果只有一个 —— 石沉大海。</p>
+  </section>
+
+  <!-- 3 解决方案 -->
+  <section class="slide">
+    <div class="kicker fade">THE SOLUTION</div>
+    <h2 class="title fade">一封求职信，<br>只服务<span class="accent">一个岗位</span>。</h2>
+    <div class="io">
+      <div class="box fade">
+        <div class="lab">它只需要四样输入</div>
+        <div class="tags">
+          <span class="chip">你的简历</span><span class="chip">目标公司</span>
+          <span class="chip">岗位 JD</span><span class="chip">所在行业</span>
+        </div>
+      </div>
+      <div class="arrow fade">↓</div>
+      <div class="box out fade">
+        <div class="lab">它交付</div>
+        <b>个性化定制 Cover Letter</b>
+        <div class="tags" style="margin-top:10px">
+          <span class="chip accent" style="color:var(--acc);border-color:rgba(200,240,78,.4)">突出你的优势</span>
+          <span class="chip accent" style="color:var(--acc);border-color:rgba(200,240,78,.4)">展现你对行业的了解</span>
+        </div>
+      </div>
+    </div>
+    <div class="bigclaim fade">
+      <div class="x">效率 ×10 · 回复率 ×10</div>
+      <p>把花在套模板上的时间，省下来准备面试。</p>
+    </div>
+  </section>
+
+  <!-- 4 工作流程 -->
+  <section class="slide">
+    <div class="kicker fade">WORKFLOW</div>
+    <h2 class="title fade">你说一句，<br>它走这七步。</h2>
+    <div class="flow">
+      <div class="fentry fade">你说："帮我写 cover letter"</div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">1</span><b>先选语言</b><small>中文 / 英文 / 中英双语，第一句就问你</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">2</span><b>收集材料</b><small>岗位 JD + 你的简历 + 公司名</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">3</span><b>分析岗位</b><small>核心问题 · 硬性要求 · 必须出现的关键词</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">4</span><b>提取简历高光</b><small>从业年限 · 量化过的核心成就</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">5</span><b>调研近期动态</b><small>公司/品牌/行业近 6 个月的具体动作</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">6</span><b>按固定模板成稿</b><small>四段式，口语化但不随意</small></div>
+      <div class="fstep fade"><span class="dot"></span><span class="n">7</span><b>输出双文件</b><small>.md 可编辑源稿 + .docx 可直接投递</small></div>
+    </div>
+  </section>
+
+  <!-- 5 核心亮点 -->
+  <section class="slide">
+    <div class="kicker fade">WHY IT WORKS</div>
+    <h2 class="title fade">为什么这封信<br>和别人不一样。</h2>
+    <div class="cards">
+      <div class="card fade">
+        <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h10M4 19h7"/></svg><b>语言优先</b></div>
+        <p>不再默默按 JD 语言猜，开口先让你选中 / 英 / 双语。</p>
+      </div>
+      <div class="card fade">
+        <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><b>关键词镜像</b></div>
+        <p>JD 里的关键词逐字写进信里，ATS 友好，不像群发。</p>
+      </div>
+      <div class="card fade">
+        <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><b>量化优先</b></div>
+        <p>$X、X%、X 用户 —— 数字永远排在形容词前面。</p>
+      </div>
+      <div class="card fade">
+        <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><b>对行业有观点</b></div>
+        <p>引用公司近期动作，附上你的一句判断，而不是吹捧。</p>
+      </div>
+      <div class="card fade">
+        <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h12M6 12h12M6 18h7"/></svg><b>不套模板</b></div>
+        <p>不复述简历、不堆空话、不硬凑字数，加的是叙事和意图。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 写作标准 -->
+  <section class="slide">
+    <div class="kicker fade">QUALITY BAR</div>
+    <h2 class="title fade">成稿的<br>及格线。</h2>
+    <div class="slist">
+      <div class="srow fade"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><div>长度克制<small>英文 250–400 词 / 中文 400–600 字，不硬撑字数</small></div></div>
+      <div class="srow fade"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><div>无废话开头<small>跳过"我怀着极大热情"，第一句直接给价值</small></div></div>
+      <div class="srow fade"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><div>成就必带数字<small>每一段被引用的经历，都配可验证的结果</small></div></div>
+      <div class="srow fade"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><div>命名有讲究<small>知名大厂才点名，小公司只写所处领域</small></div></div>
+      <div class="srow fade"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg><div>语气拿捏<small>自信不自大，具体不机械，温暖不谄媚</small></div></div>
+    </div>
+  </section>
+
+  <!-- 7 本次更新 -->
+  <section class="slide">
+    <div class="kicker fade">WHAT'S NEW</div>
+    <h2 class="title fade">本次更新<br>了什么。</h2>
+    <div class="log">
+      <div class="lrow fade"><span class="tag">NEW</span><div>Step 1 开头新增语言选择<small>中 / 英 / 中英双语三选一，不再静默默认</small></div></div>
+      <div class="lrow fade"><span class="tag">NEW</span><div>语言升为第 1 项必填<small>其次才是 JD、简历、公司名</small></div></div>
+      <div class="lrow fade"><span class="tag">NEW</span><div>英文版触发条件改了<small>从"JD 要求英文"改为"用户选了英文"</small></div></div>
+      <div class="lrow fix fade"><span class="tag">FIX</span><div>字数目标修正<small>残留旧值 350–500 → 250–400，与 Step 1 对齐</small></div></div>
+      <div class="lrow fade"><span class="tag">NEW</span><div>描述文案同步<small>"English polishing"改为"语言可选"</small></div></div>
+    </div>
+    <p class="footnote fade">技能结构已验证通过，改动已生效。</p>
+  </section>
+
+  <!-- 8 结尾 -->
+  <section class="slide s-end">
+    <div class="kicker fade">TRY IT NOW</div>
+    <h2 class="title fade">别让一封模板求职信，<br>浪费一次机会。</h2>
+    <p class="fade">现在说一句"帮我写 cover letter"，<br>它会先问你：</p>
+    <div class="langs fade">
+      <span class="chip" style="color:var(--acc);border-color:rgba(200,240,78,.5)">中文</span>
+      <span class="chip" style="color:var(--acc);border-color:rgba(200,240,78,.5)">English</span>
+      <span class="chip" style="color:var(--acc);border-color:rgba(200,240,78,.5)">中英双语</span>
+    </div>
+    <div class="brand fade">COVER LETTER WRITER · <b>AI 求职技能</b></div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var dotsBox = document.getElementById('dots');
+  var bar = document.getElementById('bar');
+
+  // 生成页码点
+  slides.forEach(function(s, i){
+    var b = document.createElement('button');
+    b.setAttribute('aria-label', '第' + (i+1) + '屏');
+    b.addEventListener('click', function(){
+      slides[i].scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    dotsBox.appendChild(b);
+  });
+  var dots = Array.prototype.slice.call(dotsBox.children);
+
+  // 滚动揭示
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('in'); });
+  }, {root: deck, threshold:.18});
+  deck.querySelectorAll('.fade').forEach(function(el){ io.observe(el); });
+
+  // 进度 + 当前点
+  function onScroll(){
+    var max = deck.scrollHeight - deck.clientHeight;
+    var p = max > 0 ? deck.scrollTop / max : 0;
+    bar.style.width = (p*100).toFixed(1) + '%';
+    var idx = Math.round(deck.scrollTop / deck.clientHeight);
+    idx = Math.max(0, Math.min(slides.length-1, idx));
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===idx); });
+  }
+  deck.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>
